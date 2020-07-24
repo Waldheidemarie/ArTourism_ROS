@@ -148,7 +148,7 @@ public class CameraPreviewView extends ViewGroup {
     setupBufferingPreviewCallback();
 
     camera.startPreview();
-    camera.setDisplayOrientation(90);
+    //camera.setDisplayOrientation(90);
 
     try {
       // This may have no effect if the SurfaceHolder is not yet created.
