@@ -149,6 +149,8 @@ public class MainActivity extends RosActivity {
         mUnityPlayer.requestFocus();
 
         rosCameraPreviewView = (RosCameraPreviewView) findViewById(R.id.ros_camera_preview_view);
+        //rosCameraPreviewView.setVisibility(View.INVISIBLE);         //设置控件隐藏，但仍占用空间
+        //rosCameraPreviewView.getBackground().setAlpha(12);
         this.mSensorManager = ((SensorManager)getSystemService(Context.SENSOR_SERVICE));
         rosTextView = (RosTextView<std_msgs.String>) findViewById(R.id.text);
         rosTextView.setTopicName("string_test");
