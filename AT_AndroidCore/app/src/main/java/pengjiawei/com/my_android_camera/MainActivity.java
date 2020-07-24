@@ -180,36 +180,6 @@ public class MainActivity extends RosActivity {
 
     }
 
-    private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-        @Override
-        public void onImageAvailable(ImageReader reader) {
-            ImageHandler(reader);
-        }
-    };
-
-    private void ImageHandler(ImageReader reader){
-        // 获取当前帧图片，并检测图片是否有效
-        Image image = reader.acquireNextImage();
-        float time = image.getTimestamp();
-        if (image == null) {
-            Log.e(TAG, "camera image is null");
-            return;
-        }
-        if (image.getFormat() != ImageFormat.YUV_420_888) {
-            Log.e(TAG, "camera image is in wrong format");
-            return;
-        }
-
-        // 获取图片的基本信息
-        int width = image.getWidth();
-        int height = image.getHeight();
-        byte[] data = ImageUtil.getBytesFromImageAsType(image,ImageUtil.NV21);
-
-        byte[] imageResult;
-
-    }
-
-
     @Override protected void onNewIntent(Intent intent)
     {
         // To support deep linking, we need to make sure that the client can get access to
