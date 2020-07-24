@@ -150,47 +150,58 @@ public class ImuPublisher implements NodeMain
         }
         @Override
         public void onSensorChanged(SensorEvent event) {
+
             count ++;
             float[] values = event.values;
             StringBuilder sb = new StringBuilder();
             sb.append("\n传感器取值频率为:\n");
             sb.append(1000 / ((System.currentTimeMillis() - MainActivity.start_time) / count));
 
-            //加速度
-            this.imu.getLinearAcceleration().setX(event.values[0]);
-            this.imu.getLinearAcceleration().setY(event.values[1]);
-            this.imu.getLinearAcceleration().setZ(event.values[2]);
-            double[] tmpCov1 = { 0.01D, 0.0D, 0.0D, 0.0D, 0.01D, 0.0D, 0.0D, 0.0D, 0.01D };
-            this.imu.setLinearAccelerationCovariance(tmpCov1);
-            this.accelTime = event.timestamp;
-            //角速度
-            this.imu.getAngularVelocity().setX(event.values[0]);
-            this.imu.getAngularVelocity().setY(event.values[1]);
-            this.imu.getAngularVelocity().setZ(event.values[2]);
-            double[] tmpCov2 ={0.0025,0,0,0,0.0025,0,0,0,0.0025};// TODO Make Parameter
-            this.imu.setAngularVelocityCovariance(tmpCov2);
-            this.gyroTime = event.timestamp;
-            //方向
-            float[] quaternion = new float[4];
-            SensorManager.getQuaternionFromVector(quaternion, event.values);
-            this.imu.getOrientation().setW(quaternion[0]);
-            this.imu.getOrientation().setX(quaternion[1]);
-            this.imu.getOrientation().setY(quaternion[2]);
-            this.imu.getOrientation().setZ(quaternion[3]);
-            double[] tmpCov3 ={0.001,0,0,0,0.001,0,0,0,0.001};// TODO Make Parameter
-            this.imu.setOrientationCovariance(tmpCov3);
-            this.quatTime = event.timestamp;
-            //求取获取传感器参数的频率
-            long time_delta_millis =System.currentTimeMillis()- SystemClock.uptimeMillis();
-            this.imu.getHeader().setStamp(Time.fromMillis(time_delta_millis + event.timestamp/1000000));
-            this.imu.getHeader().setFrameId("/imu");// TODO Make parameter
-            //前面组装消息    后面发布消息
-            publisher.publish(this.imu);
-            // Create a new message ，清空了this.imu
-            this.imu =this.publisher.newMessage();
-            this.accelTime =0L;
-            this.gyroTime =0L;
-            this.quatTime =0L;
+            //Log.i("dataTransfer:","~~~~~"+event.sensor.getType());
+            if(event.sensor.getType()==1) {
+                //加速度
+                this.imu.getLinearAcceleration().setX(event.values[0]);
+                this.imu.getLinearAcceleration().setY(event.values[1]);
+                this.imu.getLinearAcceleration().setZ(event.values[2]);
+                double[] tmpCov1 = {0.01D, 0.0D, 0.0D, 0.0D, 0.01D, 0.0D, 0.0D, 0.0D, 0.01D};
+                this.imu.setLinearAccelerationCovariance(tmpCov1);
+                this.accelTime = event.timestamp;
+            }
+            else if(event.sensor.getType()==4) {
+                //角速度
+                this.imu.getAngularVelocity().setX(event.values[0]);
+                this.imu.getAngularVelocity().setY(event.values[1]);
+                this.imu.getAngularVelocity().setZ(event.values[2]);
+                double[] tmpCov2 = {0.0025, 0, 0, 0, 0.0025, 0, 0, 0, 0.0025};// TODO Make Parameter
+                this.imu.setAngularVelocityCovariance(tmpCov2);
+                this.gyroTime = event.timestamp;
+            }
+            else if(event.sensor.getType()==11) {
+                //方向
+                float[] quaternion = new float[4];
+                SensorManager.getQuaternionFromVector(quaternion, event.values);
+                this.imu.getOrientation().setW(quaternion[0]);
+                this.imu.getOrientation().setX(quaternion[1]);
+                this.imu.getOrientation().setY(quaternion[2]);
+                this.imu.getOrientation().setZ(quaternion[3]);
+                double[] tmpCov3 = {0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001};// TODO Make Parameter
+                this.imu.setOrientationCovariance(tmpCov3);
+                this.quatTime = event.timestamp;
+            }
+
+            if (((this.accelTime != 0L) || (!this.hasAccel)) && ((this.gyroTime != 0L) || (!this.hasGyro)) && ((this.quatTime != 0L) || (!this.hasQuat))) {
+                //求取获取传感器参数的频率
+                long time_delta_millis = System.currentTimeMillis() - SystemClock.uptimeMillis();
+                this.imu.getHeader().setStamp(Time.fromMillis(time_delta_millis + event.timestamp / 1000000));
+                this.imu.getHeader().setFrameId("/imu");// TODO Make parameter
+                //前面组装消息    后面发布消息
+                publisher.publish(this.imu);
+                // Create a new message ，清空了this.imu
+                this.imu = this.publisher.newMessage();
+                this.accelTime = 0L;
+                this.gyroTime = 0L;
+                this.quatTime = 0L;
+            }
         }
     }
 }
